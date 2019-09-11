@@ -4,6 +4,8 @@ import com.example.friends.model.Friend;
 import com.example.friends.model.Message;
 import com.example.friends.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -21,9 +23,7 @@ public class FriendController {
 
     @GetMapping("/friends")
     Iterable<Friend> getFriends(){
-        Iterable<Friend> friendIterable = friendService.findAll();
-        friendIterable.forEach((friend)->System.out.println(friend.toString()));
-        return friendIterable;
+        return friendService.findAll();
     }
 
     @PostMapping("/friends/add")
@@ -44,8 +44,14 @@ public class FriendController {
     }
 
     @GetMapping("/friends/search/{id}")
-    Optional<Friend> getFriendById(@PathVariable Integer id){
-        return friendService.findById(id);
+    ResponseEntity<Optional<Friend>> getFriendById(@PathVariable Integer id){
+        //added Exception handling mechanism if user not found
+        Optional<Friend> optionalFriend =  friendService.findById(id);
+        if(optionalFriend.isPresent())
+            return new ResponseEntity(optionalFriend, HttpStatus.OK);
+        else{
+            return new ResponseEntity(optionalFriend.orElse(null), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/friends/searchByName")

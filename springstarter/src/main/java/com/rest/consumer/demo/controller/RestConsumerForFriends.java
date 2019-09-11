@@ -5,13 +5,18 @@ import com.rest.consumer.demo.model.Message;
 import com.rest.consumer.demo.util.ConfigUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @RestController
 public class RestConsumerForFriends {
 
     @Autowired
     ConfigUtil util;
+
+    Friend dummyFriend = new Friend(0,"xxx","yyy",false,0,null );
 
     @GetMapping("/welcome/friend")
     Message getMessage(){
@@ -42,11 +47,32 @@ public class RestConsumerForFriends {
         util.rest().delete(util.getProperty("fendpoint")+util.getProperty("deletefriend")+util.getProperty("uriSeperator")+id);
     }
 
+    /**
+     *
+     * @param id
+     * @return ResponseEntity of Friend or throws exception
+     * Added changes as part of exception handling.
+     */
     @GetMapping("/welcome/searchFriend/{id}")
-    Friend searchFriendById(@PathVariable Integer id){
-        return util.rest().getForObject(util.getProperty("fendpoint") + util.getProperty("searchFriend")+util.getProperty("uriSeperator")+id,
+    ResponseEntity<Friend> searchFriendById(@PathVariable Integer id){
+        ResponseEntity<Friend> friendEntity = util
+                .rest()
+                .getForEntity(util.getProperty("fendpoint") + util.getProperty("searchFriend")+util.getProperty("uriSeperator")+id,
                 Friend.class);
+        if(friendEntity.getStatusCode() == HttpStatus.OK)
+            return friendEntity;
+        else
+            return new ResponseEntity(dummyFriend, HttpStatus.BAD_REQUEST);
     }
+
+
+    /**
+     * Method to catch exception and return the defined response
+     * Added as part of Exception handling changes.
+     */
+    @ExceptionHandler(HttpStatusCodeException.class)
+    @ResponseStatus(value=HttpStatus.BAD_REQUEST,reason="Friend not found")
+    public void notFound() { }
 
     @GetMapping("/welcome/searchByName")
     Friend[] searchFriendByName(@RequestParam(value = "firstName", required = false) String firstName,
