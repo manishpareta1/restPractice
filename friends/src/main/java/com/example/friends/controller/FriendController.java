@@ -6,8 +6,10 @@ import com.example.friends.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.xml.bind.ValidationException;
 import java.util.Collection;
 import java.util.Optional;
@@ -35,18 +37,17 @@ public class FriendController {
 
 
     @PostMapping("/friends/add")
-    Friend create(@RequestBody Friend friend) throws ValidationException{
-        //added validation before creating data.
-        if(friend.getId() == 0 && friend.getFirstName()  != null && friend.getLastName() != null){
-            return friendService.save(friend);
-        }else{
-            throw new ValidationException("Create Error: Friend cannot be create, Please validate the data");
-        }
+    //Removed manual field validation and added MethodArgumentNotValidException for first and last name
+    //for better exception handling
+    Friend create(@Valid @RequestBody Friend friend) throws MethodArgumentNotValidException, Exception {
+        return friendService.save(friend);
     }
 
 
     @PutMapping("/friends/update")
-    Friend update(@RequestBody Friend friend) throws ValidationException{
+    //added MethodArgumentNotValidException as well for data validation during update for first and last
+    // name
+    Friend update(@Valid @RequestBody Friend friend) throws MethodArgumentNotValidException,ValidationException{
         if(friendService.findById(friend.getId()).isPresent()){
             return friendService.saveAndFlush(friend);
         }else{
@@ -58,7 +59,7 @@ public class FriendController {
     @DeleteMapping("/friends/delete/{id}")
     void deleteFriend(@PathVariable Integer id) throws ValidationException{
         if(friendService.findById(id).isPresent()){
-            friendService.deleteById(id);;
+            friendService.deleteById(id);
         }else{
             throw new ValidationException("Delete Error: Friend cannot be found with the id: "+id);
         }

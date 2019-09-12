@@ -2,24 +2,24 @@ package com.example.friends.error;
 
 import java.util.Date;
 
-public class ErrorMessage {
+public class FieldErrorMessage {
 
-    private String status;
+    private String field;
     private String message;
     private Date timeStamp;
 
-    public ErrorMessage(String status, String message, Date timeStamp) {
-        this.status = status;
+    public FieldErrorMessage(String field, String message, Date timeStamp) {
+        this.field = field;
         this.message = message;
         this.timeStamp = timeStamp;
     }
 
-    public String getStatus() {
-        return status;
+    public String getField() {
+        return field;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setField(String field) {
+        this.field = field;
     }
 
     public String getMessage() {
@@ -38,6 +38,6 @@ public class ErrorMessage {
         this.timeStamp = timeStamp;
     }
 
-    public ErrorMessage() {
+    public FieldErrorMessage() {
     }
 }

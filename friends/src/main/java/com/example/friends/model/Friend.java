@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 
@@ -16,10 +17,12 @@ public class Friend {
 
     @JsonProperty("first-name")
     @Column(name="firstName")
+    @NotBlank
     private String firstName;
 
     @JsonProperty("last-name")
     @Column(name="lastName")
+    @NotBlank
     private String lastName;
 
     private int age;
