@@ -87,4 +87,8 @@ public class Friend {
                 ", addresses=" + addresses +
                 '}';
     }
+
+    public static Friend getDummyFriend(){
+        return new Friend(0,"xxx","yyy",false,0,null );
+    }
 }

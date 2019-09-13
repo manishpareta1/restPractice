@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpStatusCodeException;
+
+import javax.xml.bind.ValidationException;
 
 @RestController
 public class RestConsumerForFriends {
@@ -16,14 +17,12 @@ public class RestConsumerForFriends {
     @Autowired
     ConfigUtil util;
 
-    Friend dummyFriend = new Friend(0,"xxx","yyy",false,0,null );
-
     @GetMapping("/welcome/friend")
     Message getMessage(){
         Message message = util.rest().getForObject(util.getProperty("fendpoint")+util.getProperty("fmessage"), Message.class);
         return message;
-        // http://localhost:8082/message
     }
+
     @GetMapping("/welcome/friends")
     Friend[] getFriends(){
         Friend[] friend = util.rest().getForObject(util.getProperty("fendpoint")+util.getProperty("getfriends"), Friend[].class);
@@ -31,9 +30,13 @@ public class RestConsumerForFriends {
     }
 
     @PostMapping("/welcome/addFriend")
-    Friend addFriend(@RequestBody Friend friend){
+    Friend addFriend(@RequestBody Friend friend) throws ValidationException{
        // Friend friend = new Friend("J K", "Rowling");
-         return util.rest().postForObject(util.getProperty("fendpoint")+util.getProperty("addfriend"), friend,Friend.class);
+        try {
+            return util.rest().postForObject(util.getProperty("fendpoint") + util.getProperty("addfriend"), friend, Friend.class);
+        }catch(Exception ex){
+         throw new ValidationException("Cannot create friend");
+        }
     }
 
     @PutMapping("/welcome/updateFriend")
@@ -62,17 +65,8 @@ public class RestConsumerForFriends {
         if(friendEntity.getStatusCode() == HttpStatus.OK)
             return friendEntity;
         else
-            return new ResponseEntity(dummyFriend, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(Friend.getDummyFriend(), HttpStatus.BAD_REQUEST);
     }
-
-
-    /**
-     * Method to catch exception and return the defined response
-     * Added as part of Exception handling changes.
-     */
-    @ExceptionHandler(HttpStatusCodeException.class)
-    @ResponseStatus(value=HttpStatus.BAD_REQUEST,reason="Friend not found")
-    public void notFound() { }
 
     @GetMapping("/welcome/searchByName")
     Friend[] searchFriendByName(@RequestParam(value = "firstName", required = false) String firstName,
@@ -90,6 +84,4 @@ public class RestConsumerForFriends {
             return util.rest().getForObject(util.getProperty("fendpoint") + util.getProperty("getfriends"),
                     Friend[].class);
     }
-
-
 }
