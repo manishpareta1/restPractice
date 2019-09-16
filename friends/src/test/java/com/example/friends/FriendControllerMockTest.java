@@ -17,9 +17,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+
 import static org.hamcrest.Matchers.*;
 
 import static org.mockito.Mockito.verify;
@@ -51,7 +49,9 @@ public class FriendControllerMockTest {
         List<Address> addressList = Arrays.asList(new Address(0,"Adam5 Street", "Adam5 City"));
         List<Friend> friendList = Arrays.asList(new Friend(0,"Adam5","Gilchrist",40,addressList));
 
+        //method to get the response of the service call, and this response will be used to compare with the actual method call
         Mockito.when(friendService.findAll()).thenReturn(friendList);
+        //mockMvc with make a get call by mocking friends service from below code
         try {
             mockMvc.perform(get("/friends"))
                     .andExpect(status().isOk())
